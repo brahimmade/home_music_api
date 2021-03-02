@@ -1,0 +1,8 @@
+Django
+django-cors-headers
+djangorestframework
+eyed3
+psycopg2-binary
+python-dotenv
+urllib3
+psycopg2-binary
