@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 # CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_LIST").split(",")
 CORS_ORIGIN_ALLOW_ALL=True
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -49,9 +50,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -72,7 +73,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'songapi.context_processors.settings',
             ],
         },
     },

@@ -49,16 +49,25 @@ class SingletonModel(models.Model):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
 
-class SongApiSettings(SingletonModel):
-    file_snapshot = models.TextField(blank=True)
+class SongApiUserSettings(SingletonModel):
     source_ip = models.CharField(max_length=255, blank=True)
     source_script_path = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return "Song API Settings"
+        return "Song API User Setting"
 
     class Meta:
-        verbose_name = "Song API Settings"
+        verbose_name = "Song API User Setting"
+
+class SongApiSourceFiles(SingletonModel):
+    source_files = models.TextField(blank=True)
+    refresh_underway = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "Song API Source File"
+
+    class Meta:
+        verbose_name = "Song API Source File"
 
 class Playlist(models.Model):
     name = models.CharField(max_length=255, unique=True)

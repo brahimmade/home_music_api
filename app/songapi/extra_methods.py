@@ -6,7 +6,7 @@ from django.apps import apps
 
 import eyed3
 
-from .models import Album, Artist, Song, SongApiSettings
+from .models import Album, Artist, Song, SongApiUserSettings, SongApiSourceFiles
 
 class SongProcessing(object):
 
@@ -15,7 +15,7 @@ class SongProcessing(object):
         - retrieve list of song files on a remote file server
         - return json data consisting of a list of each file in format ['./artist/album/file_name.mp3',]
         """
-        info = SongApiSettings.load()
+        info = SongApiUserSettings.load()
 
         with urllib.request.urlopen(info.source_ip+info.source_script_path) as url:
             songsRaw = json.loads(url.read().decode())
@@ -60,7 +60,7 @@ class SongProcessing(object):
         """
         returnData = []
 
-        info = SongApiSettings.load()
+        info = SongApiUserSettings.load()
        
         song_url = info.source_ip+urllib.parse.quote(file_path[1:])
 
@@ -114,12 +114,50 @@ class SongProcessing(object):
         """
         - remove a single song from the database
         """
-        info = SongApiSettings.load()
+        info = SongApiUserSettings.load()
         song_url = info.source_ip+urllib.parse.quote(file_path[1:])
         songInstance = Song.objects.get(remote_url=song_url)
         songInstance.delete()
 
         return {"deleted":file_path}
+
+    def GetUserSettings(self):
+        info = SongApiUserSettings.load()
+        returnVal = {{"source_ip":info.source_ip},{"source_script_path":info.source_script_path}}
+        return returnVal
+
+    def SetUserSettings(self, sourceIP, sourceScriptPath):
+        
+        try:
+            info = SongApiUserSettings.load()
+
+            info.source_ip = sourceIP
+            info.source_script_path = sourceScriptPath
+
+            info.save()
+            
+            return {"result":"settings saved"}
+
+        except:
+            return {"result":"save settings error"}
+        
+
+    def GetRefreshStatus(self):
+        """
+        check if a song refresh is in progress
+        - return true or false 
+        """
+        apiSettings = SongApiSourceFiles.load()
+
+        returnVal = "unknown"
+
+        if apiSettings.refresh_underway:
+            returnVal = "true"
+        else:
+            returnVal = "false"
+
+        return {"status":returnVal}
+
         
     def RefreshSongs(self):
         """
@@ -130,11 +168,15 @@ class SongProcessing(object):
         addReturnData = []
         delReturnData = []
 
+        apiSettings = SongApiSourceFiles.load()
+
+        apiSettings.refresh_underway = True
+        apiSettings.save()
+
         filesOnServer = self.__GetSongFilesOnServer()
-        apiSettings = SongApiSettings.load()
         filesPresentLastRefresh = []
-        if apiSettings.file_snapshot:
-            filesPresentLastRefresh = json.loads(apiSettings.file_snapshot)
+        if apiSettings.source_files:
+            filesPresentLastRefresh = json.loads(apiSettings.source_files)
                 
         newSongFiles = self.__NewSongs(filesOnServer, filesPresentLastRefresh)
         deletedSongs = self.__RemovedSongs(filesOnServer, filesPresentLastRefresh)
@@ -151,7 +193,8 @@ class SongProcessing(object):
                 delReturnData.append(delResult)
 
         
-        apiSettings.file_snapshot = json.dumps(filesOnServer)
+        apiSettings.source_files = json.dumps(filesOnServer)
+        apiSettings.refresh_underway = False
         apiSettings.save()
         
         return {'added':addReturnData, 'deleted':delReturnData}
