@@ -61,34 +61,15 @@ class PlaylistSongViewSet(viewsets.ModelViewSet):
 	filter_backends = [filters.SearchFilter]
 	search_fields = ['playlist__id', 'song__id', 'playlist__name', 'song__title', 'created_at'] 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated, ))
-def refresh_songs(request):
-	'''
-	non-model based view to add / remove songs from database when they are added or removed from file system
-	'''
-	if request.method == 'GET':
-		objSongs = SongProcessing()
-		returnData = objSongs.RefreshSongs()
-		return Response(returnData)
-
-	return Response({"message": "GET - refresh_songs, no POST or DELETE"})
-
-@api_view(['GET'])
-@permission_classes((IsAuthenticated, ))
-def get_user_settings(request):
+def settings(request):
 	
 	if request.method == 'GET':
 		obj = SongApiUserSettings.objects.all().values()
 		returnData = obj
 		return Response(returnData)
 
-	return Response({"message": "GET - get_user_settings, no POST or DELETE"})
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated, ))
-def set_user_settings(request):
-	
 	if request.method == 'POST':
 		objSettings = SongApiUserSettings.objects.first()
 		objSettings.source_ip = request.POST.get('source_ip')
@@ -97,30 +78,29 @@ def set_user_settings(request):
 		returnData = SongApiUserSettings.objects.all().values()
 		return Response(returnData)
 
-	return Response({"message": "POST - set_user_settings, no GET or DELETE"})
+	return Response({"message": "settings, GET settings values, POST new settings values"})
 
-@api_view(['GET'])
+@api_view(['GET', 'POST', 'PUT'])
 @permission_classes((IsAuthenticated, ))
-def get_refresh_status(request):
+def refresh(request):
 	
 	if request.method == 'GET':
 		obj = SongApiSourceFiles.objects.only().values('refresh_underway')
 		return Response(obj)
 
-	return Response({"message": "GET - get_refresh_status, no POST or DELETE"})
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated, ))
-def set_refresh_status(request):
-	
 	if request.method == 'POST':
-		postVal = request.POST.get('refresh')
+		postVal = request.POST.get('newval')
 		newVal = strtobool(postVal)
 		convertedVal = bool(newVal)
 		obj = SongApiSourceFiles.objects.first()
 		obj.refresh_underway = convertedVal
 		obj.save()
-		returnData = SongApiSourceFiles.objects.all().values()
+		returnData = SongApiSourceFiles.objects.only().values('refresh_underway')
 		return Response(returnData)
 
-	return Response({"message": "POST - set_user_settings, no GET or DELETE"})
+	if request.method == 'PUT':
+		objSongs = SongProcessing()
+		returnData = objSongs.RefreshSongs()
+		return Response(returnData)
+
+	return Response({"message": "refresh, GET status, POST new status value, PUT perform refresh to update DB"})
