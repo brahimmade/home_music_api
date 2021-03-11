@@ -13,7 +13,6 @@ router.register(r'playlistsong', PlaylistSongViewSet)
 
 urlpatterns = [
  path('', include(router.urls)),
- path('refresh_songs/', refresh_songs, name='refresh_songs'),
  path('settings/', settings, name='settings'),
  path('refresh/', refresh, name='refresh'),
 ]
