@@ -61,7 +61,6 @@ class SongApiUserSettings(SingletonModel):
 
 class SongApiSourceFiles(SingletonModel):
     source_files = models.TextField(blank=True)
-    refresh_underway = models.BooleanField(default=False)
 
     def __str__(self):
         return "Song API Source File"

@@ -80,27 +80,13 @@ def settings(request):
 
 	return Response({"message": "settings, GET settings values, POST new settings values"})
 
-@api_view(['GET', 'POST', 'PUT'])
+@api_view(['PUT'])
 @permission_classes((IsAuthenticated, ))
 def refresh(request):
-	
-	if request.method == 'GET':
-		obj = SongApiSourceFiles.objects.only().values('refresh_underway')
-		return Response(obj)
-
-	if request.method == 'POST':
-		postVal = request.POST.get('newval')
-		newVal = strtobool(postVal)
-		convertedVal = bool(newVal)
-		obj = SongApiSourceFiles.objects.first()
-		obj.refresh_underway = convertedVal
-		obj.save()
-		returnData = SongApiSourceFiles.objects.only().values('refresh_underway')
-		return Response(returnData)
 
 	if request.method == 'PUT':
 		objSongs = SongProcessing()
 		returnData = objSongs.RefreshSongs()
 		return Response(returnData)
 
-	return Response({"message": "refresh, GET status, POST new status value, PUT perform refresh to update DB"})
+	return Response({"message": "PUT perform refresh to update DB"})
