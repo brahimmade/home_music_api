@@ -44,8 +44,17 @@ ADMIN_USER_PASSWORD=
 - id, name  
 - search allowed, songapi/album/?search=  
 
-**POST songapi/artist/**  
+**POST songapi/album/**  
 - write album data to database  
+- name  
+
+**GET songapi/artist/**  
+- return json of all artists in database  
+- id, name  
+- search allowed, songapi/artist/?search=  
+
+**POST songapi/artist/**  
+- write artist data to database  
 - name  
 
 **GET songapi/playlist/**  
