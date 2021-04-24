@@ -12,4 +12,4 @@ services:
 networks:
     default:
         external:
-            name: localcommonnetwork1
+            name: dockernetwork1
