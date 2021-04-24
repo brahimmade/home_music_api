@@ -87,3 +87,10 @@ ADMIN_USER_PASSWORD=
 - return json of both mp3 files added to database and deleted from database  
 - when files are added to or deleted from the local harddrive the refresh  
 endpoint will update the database to reflect the files in the directory path
+
+**GET songapi/randomplaylist/**  
+- return json message  
+
+**POST songapi/randomplaylist/**  
+- create new playlist with designated number of random songs
+- name=newplaylistname, amount=numberofsongs  
