@@ -15,4 +15,5 @@ urlpatterns = [
  path('', include(router.urls)),
  path('settings/', settings, name='settings'),
  path('refresh/', refresh, name='refresh'),
+ path('randomplaylist/', randomplaylist, name='randomplaylist'),
 ]

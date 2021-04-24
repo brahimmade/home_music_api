@@ -90,3 +90,22 @@ def refresh(request):
 		return Response(returnData)
 
 	return Response({"message": "PUT perform refresh to update DB"})
+
+@api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticated, ))
+def randomplaylist(request):
+	
+	if request.method == 'GET':
+		obj = SongApiUserSettings.objects.all().values()
+		returnData = obj
+		return Response({"message": "POST name and number of songs to create random playlist"})
+
+	if request.method == 'POST':
+		objSongs = SongProcessing()
+		plName = request.POST.get('name')
+		plNumber = request.POST.get('amount')
+		# print(request.POST.get('name'))
+		returnData = objSongs.CreateRandomPlaylist(plName, plNumber)
+		return Response(returnData)
+
+	return Response({"message": "POST name and number of songs to create random playlist"})

@@ -1,12 +1,13 @@
 import json
 import urllib
 from urllib.request import pathname2url, urlretrieve
+from random import randrange
 
 from django.apps import apps
 
 import eyed3
 
-from .models import Album, Artist, Song, SongApiUserSettings, SongApiSourceFiles
+from .models import Album, Artist, Song, SongApiUserSettings, SongApiSourceFiles, Playlist, PlaylistSong
 
 class SongProcessing(object):
 
@@ -140,25 +141,7 @@ class SongProcessing(object):
 
         except:
             return {"result":"save settings error"}
-        
 
-    def GetRefreshStatus(self):
-        """
-        check if a song refresh is in progress
-        - return true or false 
-        """
-        apiSettings = SongApiSourceFiles.load()
-
-        returnVal = "unknown"
-
-        if apiSettings.refresh_underway:
-            returnVal = "true"
-        else:
-            returnVal = "false"
-
-        return {"status":returnVal}
-
-        
     def RefreshSongs(self):
         """
         compare a list of current files on the file system to a saved list 
@@ -198,3 +181,22 @@ class SongProcessing(object):
         apiSettings.save()
         
         return {'added':addReturnData, 'deleted':delReturnData}
+
+    def CreateRandomPlaylist(self, playlistName, numberOfSongs):
+        returnMessage = {"CreateRandomPlaylist":"default"}
+        songTotal = Song.objects.all().count()
+        maxNumber = int(numberOfSongs)
+        randomSongIds = [randrange(songTotal) for i in range(maxNumber)]
+
+        if Playlist.objects.filter(name=playlistName).exists() == False:
+            newPlaylist = Playlist(name=playlistName)
+            newPlaylist.save()
+            for song_id in randomSongIds:
+                songInstance = Song.objects.get(id=song_id)
+                playlistSongInstance = PlaylistSong(playlist=newPlaylist, song=songInstance)
+                playlistSongInstance.save()                
+            returnMessage = {"CreateRandomPlaylist":"complete", "name":playlistName, "amount":numberOfSongs}
+        else:
+            returnMessage = {"CreateRandomPlaylist":"playlist already exits"}
+
+        return returnMessage
